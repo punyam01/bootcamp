@@ -8,7 +8,7 @@ const {
 } = require("../controllers/bootcamp.controller.js");
 
 const router = express.Router();
-
+// hi there 
 
 router.route('/')
 .get(getAllBootcamp)
