@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-
+const slugify = require('slugify');
+let course = require('./course.model.js')
 const BootcampSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -96,6 +97,41 @@ const BootcampSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+},
+// for reverse populate compulsory twikking
+{
+  toJSON:{virtuals :true},
+  toObject:{virtuals:true}
 });
 
+// creating bootcamp slug from the name
+BootcampSchema.pre('save',function(next){
+this.slug = slugify(this.name,{lower:true})
+next()
+})
+//cascade delete courses when a bootcamp is deleted
+BootcampSchema.pre('findOneAndDelete', async function (next) {
+  try {
+    const bootcampId = this.getQuery()._id;  // Get the bootcamp ID
+    console.log(`Deleting courses for bootcamp ${bootcampId}`);
+   
+   
+    
+    // Delete associated courses
+    const result = await course.deleteMany({ bootcamp: bootcampId });
+    console.log(`Deleted ${result.deletedCount} courses associated with bootcamp ${bootcampId}`);
+
+    next();
+  } catch (error) {
+    console.error(`Error deleting courses: ${error.message}`);
+    next(error);  // Pass the error to the next middleware
+  }
+});
+//reverse populate 
+BootcampSchema.virtual('courses', {
+  ref: 'Course',          // Ensure this matches the model name
+  localField: '_id',      // Field in Bootcamp
+  foreignField: 'bootcamp', // Field in Course that references Bootcamp
+  justOne: false
+});
 module.exports = mongoose.model('Bootcamp', BootcampSchema);

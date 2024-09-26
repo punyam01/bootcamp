@@ -2,11 +2,10 @@ const ErrorResponse = require("../utils/errorREsponse.utils");
 
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
-
+ error.message = err.message
+ 
   // wrong id provided
   if (err.name == "CastError") {
-    console.log("hii");
-    
     const message = `Bootcamp not found with id of ${error.value}`;
     error = new ErrorResponse(message, 404);
   }
