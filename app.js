@@ -6,6 +6,8 @@ const app = express()
 
 // bodyparser
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public')); // Serve static files from the 'public' directory
 
 // router setting 
 const bootcamp = require("./routes/bootcamp.routes.js")

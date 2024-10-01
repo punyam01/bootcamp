@@ -1,8 +1,7 @@
 const asyncHandler = require("../middlewares/asyncHandler.middleware.js");
 const Bootcamp = require("../models/bootcamp.model.js");
 const ErrorResponse = require("../utils/errorREsponse.utils.js");
-const {upload}  = require('../middlewares/multer.middleware.js')
-const {uploadOnCloudinary} =  require('../utils/cloudinary.js')
+const { uploadOnCloudinary } = require("../utils/cloudinary.js");
 
 exports.getAllBootcamp = asyncHandler(async (req, res, next) => {
   let query;
@@ -23,10 +22,9 @@ exports.getAllBootcamp = asyncHandler(async (req, res, next) => {
     /\b(gt|gte|lt|lte|in)\b/g,
     (match) => `$${match}`
   );
-  
+
   //finding the resource on the certain conditions
-  query =  Bootcamp.find(JSON.parse(queryStr)).populate('courses')
-    
+  query = Bootcamp.find(JSON.parse(queryStr)).populate("courses");
 
   // selecting certain fields from the database
   if (req.query.select) {
@@ -117,48 +115,64 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
   });
 });
 
-  exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
-    
-      // Find bootcamp by ID
-      let bootcamp = await Bootcamp.findById(req.params.id);
-  
-      
-      
-  
-      // If bootcamp not found, return an error response
-      if (!bootcamp) {
-        return next(new ErrorResponse(`Unable to find the bootcamp with ID ${req.params.id}`, 404));
-      }
-  
-      // Remove the bootcamp and wait for the result
-      bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
-  
-      // Send success response
-      res.status(200).json({
-        success: true,
-        data: {},
-      });
-    
-  
-});
-
-
-exports.uploadPhoto = asyncHandler(async (req, res, next) => {
-    
+exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
   // Find bootcamp by ID
-  const bootcamp = await Bootcamp.findById(req.params.id);
+  let bootcamp = await Bootcamp.findById(req.params.id);
 
   // If bootcamp not found, return an error response
   if (!bootcamp) {
-    return next(new ErrorResponse(`Unable to find the bootcamp with ID ${req.params.id}`, 404));
+    return next(
+      new ErrorResponse(
+        `Unable to find the bootcamp with ID ${req.params.id}`,
+        404
+      )
+    );
   }
 
-  
+  // Remove the bootcamp and wait for the result
+  bootcamp = await Bootcamp.findByIdAndDelete(req.params.id);
+
   // Send success response
   res.status(200).json({
     success: true,
     data: {},
   });
+});
 
+//  uploading the image
+exports.uploadPhoto = asyncHandler(async (req, res, next) => {
+  // Find bootcamp by ID
+  const bootcamp = await Bootcamp.findById(req.params.id);
+  
+  // If bootcamp not found, return an error response
+  if (!bootcamp) {
+    return next(
+      new ErrorResponse(
+        `Unable to find the bootcamp with ID ${req.params.id}`,
+        404
+      )
+    );
+  }
 
+  if (!req.file) {
+    return next(new ErrorResponse('Please upload a file', 400));
+  }
+
+  // Upload the file to Cloudinary
+  const cloudinaryResponse = await uploadOnCloudinary(req.file.path);
+  
+  // If upload failed, return an error response
+  if (!cloudinaryResponse) {
+    return next(new ErrorResponse('Error uploading file to Cloudinary', 500));
+  }
+
+  // Optionally, you can update the bootcamp with the Cloudinary URL
+  bootcamp.photo = cloudinaryResponse.secure_url; // assuming the Cloudinary response has the secure URL
+  await bootcamp.save();
+
+  // Send success response
+  res.status(200).json({
+    success: true,
+    data:bootcamp,
+  });
 });

@@ -1,10 +1,12 @@
 const express = require("express");
+const {upload}= require('../middlewares/multer.middleware.js')
 const {
   getAllBootcamp,
   getBootcamp,
   createBootcamp,
   deleteBootcamp,
   updateBootcamp,
+  uploadPhoto
 } = require("../controllers/bootcamp.controller.js");
 
 // include other resources router
@@ -23,6 +25,7 @@ router.route('/')
 router.route('/:id')
 .get(getBootcamp)
 .delete(deleteBootcamp)
-.put(updateBootcamp);
+.put( upload.single("image"),uploadPhoto,updateBootcamp);
+
 
 module.exports = router;
