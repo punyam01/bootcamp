@@ -1,6 +1,6 @@
 const asyncHandler = require("../middlewares/asyncHandler.middleware.js");
 const Course = require("../models/course.model.js");
-const ErrorResponse = require("../utils/errorREsponse.utils.js");
+const ErrorResponse = require("../utils/errorResponse.utils.js");
 const Bootcamp = require("../models/bootcamp.model.js");
 
 exports.getCourses = asyncHandler(async (req, res, next) => {

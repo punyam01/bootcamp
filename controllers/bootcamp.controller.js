@@ -1,6 +1,6 @@
 const asyncHandler = require("../middlewares/asyncHandler.middleware.js");
 const Bootcamp = require("../models/bootcamp.model.js");
-const ErrorResponse = require("../utils/errorREsponse.utils.js");
+const ErrorResponse = require("../utils/errorResponse.utils.js");
 const { uploadOnCloudinary } = require("../utils/cloudinary.js");
 
 exports.getAllBootcamp = asyncHandler(async (req, res, next) => {

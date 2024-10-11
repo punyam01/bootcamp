@@ -1,5 +1,6 @@
 const express = require("express");
 const {upload}= require('../middlewares/multer.middleware.js')
+const verifyJwt = require ("../middlewares/auth.middleware.js")
 const {
   getAllBootcamp,
   getBootcamp,
@@ -19,8 +20,8 @@ router.use('/:bootcampId/courses',courseRouter)
 
 
 router.route('/')
-.get(getAllBootcamp)
-.post(createBootcamp);
+.get( verifyJwt,getAllBootcamp)
+.post( verifyJwt ,createBootcamp);
 
 router.route('/:id')
 .get(getBootcamp)
